@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const API = 'https://express-notes-api-ao1u.onrender.com/notes';
+const API = `${import.meta.env.VITE_API_URL}/notes`;
 
 export default function App() {
   const [notes, setNotes] = useState([]);
@@ -8,15 +8,18 @@ export default function App() {
   const [content, setContent] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  async function loadNotes() {
-    try {
-      const res = await fetch(API);
-      setNotes(await res.json());
-    } catch {
-      setError('Could not reach the server');
-    }
+async function loadNotes() {
+  try {
+    const res = await fetch(API);
+    setNotes(await res.json());
+  } catch {
+    setError('Could not reach the server');
+  } finally {
+    setLoading(false);
   }
+}
 
   useEffect(() => {
     loadNotes();
@@ -56,6 +59,7 @@ export default function App() {
   }
 
   return (
+        
     <div style={{ maxWidth: 500, margin: '50px auto', fontFamily: 'sans-serif', backgroundColor: '#f0f0f0', padding: '30px', borderRadius: '10px' }}>
       <h1>Notes</h1>
 
@@ -79,6 +83,7 @@ export default function App() {
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
+        {loading && <p>Loading notes… the server may take a minute to wake up.</p>}
       <ul style={{ listStyle: 'none', padding: 0, marginTop: '20px' }}>
         {notes.map((note) => (
           <li key={note.id} style={{ marginBottom: '10px', padding: '10px', gap: '10px', backgroundColor: '#ffffff', borderRadius: '5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
